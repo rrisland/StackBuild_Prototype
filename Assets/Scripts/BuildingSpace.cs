@@ -8,11 +8,20 @@ namespace StackProto
 {
     public class BuildingSpace : MonoBehaviour
     {
+
+        private struct StackQueueEntry
+        {
+            public Transform building;
+            public float y;
+        }
+
         [SerializeField] private BuildingData data;
 
         private Vector3 origin;
         private float lastDownHeight = 0;
         private float height = 0;
+        private bool isStackAnimating = false;
+        private readonly Queue<StackQueueEntry> stackQueue = new ();
 
         private void Start()
         {
@@ -24,7 +33,7 @@ namespace StackProto
             height += data.floorHeight;
             
             var obj = Instantiate(data.floorTemplate, transform);
-            obj.transform.position += Vector3.up * height;
+            AnimateStack(obj.transform, height);
 
             if (obj.TryGetComponent(out MeshRenderer renderer))
             {
@@ -33,14 +42,37 @@ namespace StackProto
 
             if (!data.isFloorDown) return;
 
-            if (height - lastDownHeight > data.floorHeightMax)
+            Debug.Log("Build(" + name +"): " + material.name + " Material");
+        }
+
+        private void AnimateStack(Transform building, float y)
+        {
+            stackQueue.Enqueue(new StackQueueEntry
             {
-                transform.DOMove(origin + Vector3.down * (height - data.floorHeightMax), 2.0f).SetEase(Ease.OutQuad);
-                //transform.position = origin + Vector3.down * (height - data.floorHeightMax);
-                lastDownHeight = height;
+                building = building,
+                y = y,
+            });
+
+            if (isStackAnimating) return;
+            isStackAnimating = true;
+            StartCoroutine(StackCoroutine());
+        }
+
+        private IEnumerator StackCoroutine()
+        {
+            while (stackQueue.TryDequeue(out var entry))
+            {
+                entry.building.transform.DOLocalMoveY(entry.y, 0.8f).From(entry.y + 20).SetEase(Ease.InCubic);
+                var baseY = entry.y - data.floorHeightMax;
+                if (data.isFloorDown && baseY - lastDownHeight > 0)
+                {
+                    transform.DOLocalMoveY(-baseY, 1.0f).SetEase(Ease.OutBack).SetDelay(0.8f);
+                    lastDownHeight = baseY;
+                }
+                yield return new WaitForSeconds(0.07f);
             }
 
-            Debug.Log("Build(" + name +"): " + material.name + " Material");
+            isStackAnimating = false;
         }
     }
 }
