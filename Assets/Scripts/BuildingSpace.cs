@@ -74,5 +74,6 @@ namespace StackProto
 
             isStackAnimating = false;
         }
+
     }
 }
