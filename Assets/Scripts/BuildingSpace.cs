@@ -8,7 +8,6 @@ namespace StackProto
 {
     public class BuildingSpace : MonoBehaviour
     {
-
         private struct StackQueueEntry
         {
             public Transform building;
@@ -39,10 +38,6 @@ namespace StackProto
             {
                 renderer.sharedMaterial = material;
             }
-
-            if (!data.isFloorDown) return;
-
-            Debug.Log("Build(" + name +"): " + material.name + " Material");
         }
 
         private void AnimateStack(Transform building, float y)
@@ -74,6 +69,5 @@ namespace StackProto
 
             isStackAnimating = false;
         }
-
     }
 }
