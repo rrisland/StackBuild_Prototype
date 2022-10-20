@@ -35,14 +35,6 @@ namespace NetworkSystem
             NetworkSystemManager.NetworkInitAsync().Forget();
         }
 
-        private void Update()
-        {
-            if (Keyboard.current.enterKey.wasPressedThisFrame && string.IsNullOrEmpty(loadSceneName))
-            {
-                NetworkSystemSceneManager.LoadScene(loadSceneName);
-            }
-        }
-
         private void OnGUI()
         {
             NetworkGUIWindow(0);
@@ -79,14 +71,19 @@ namespace NetworkSystem
             {
                 NetworkSystemManager.ClientCodeAsync(lobby, relay, LobbyCode, this.GetCancellationTokenOnDestroy()).Forget();
             }
-            
-            GUILayout.Space(5);
+
             if (GUILayout.Button("LobbyExit", button))
             {
                 NetworkSystemManager.NetworkExit(lobby, relay).Forget();
             }
 
-            
+            GUILayout.Space(10);
+            loadSceneName = GUILayout.TextField(loadSceneName, 25, textField);
+            if (GUILayout.Button("NextScene", button) && !string.IsNullOrEmpty(loadSceneName))
+            {
+                NetworkSystemSceneManager.LoadScene(loadSceneName);
+            }
+
             if (lobby.lobbyInfo != null)
             {
                 GUILayout.Label("ロビー名: " + lobby.lobbyInfo.Name, label);
