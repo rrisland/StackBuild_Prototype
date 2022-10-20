@@ -6,9 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/Belt.unity
+    path: 
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/Scenes/Material Canon.unity
+    path: Assets/Scenes/EntryLobby.unity
+    guid: 8bbad1c7ad0257b40895f8d2224e210e
+  - enabled: 1
+    path: Assets/Scenes/StackBuild.unity
     guid: b34bd10ef0ef62f448cd34d4c154fec6
   m_configObjects: {}

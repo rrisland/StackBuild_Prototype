@@ -1,41 +1,61 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace StackProto
 {
-    public class Player : MonoBehaviour
+    public class Player : NetworkBehaviour
     {
+        [SerializeField] private InputSender inputSender;
+        
         [SerializeField] private PlayerData data;
-        [SerializeField] private bool IsFirstPlayer = true;
+        //[SerializeField] private bool IsFirstPlayer = true;
         [SerializeField] private Cone cone = null;
 
         private Vector3 velocity = Vector3.zero;
-        private bool isCatchupped = false;
+        //private bool isCatchupped = false;
+
+        private void Start()
+        {
+            if (!IsClient)
+                return;
+            
+            inputSender.Catch.Where(x => !x).Subscribe(x =>
+            {
+                CatchupRelease();
+            }).AddTo(this);
+        }
 
         private void Update()
         {
+            if (!IsClient)
+                return;
+            
             Vector2 dir = Vector2.zero;
 
-            if (Input.GetKey(IsFirstPlayer ? KeyCode.W : KeyCode.I))
-            {
-                dir += Vector2.up;
-            }
-            if (Input.GetKey(IsFirstPlayer ? KeyCode.S : KeyCode.K))
-            {
-                dir += Vector2.down;
-            }
-            if (Input.GetKey(IsFirstPlayer ? KeyCode.A : KeyCode.J))
-            {
-                dir += Vector2.left;
-            }
-            if (Input.GetKey(IsFirstPlayer ? KeyCode.D : KeyCode.L))
-            {
-                dir += Vector2.right;
-            }
+            dir = inputSender.Move.Value;
+
+            // if (Input.GetKey(IsFirstPlayer ? KeyCode.W : KeyCode.I))
+            // {
+            //     dir += Vector2.up;
+            // }
+            // if (Input.GetKey(IsFirstPlayer ? KeyCode.S : KeyCode.K))
+            // {
+            //     dir += Vector2.down;
+            // }
+            // if (Input.GetKey(IsFirstPlayer ? KeyCode.A : KeyCode.J))
+            // {
+            //     dir += Vector2.left;
+            // }
+            // if (Input.GetKey(IsFirstPlayer ? KeyCode.D : KeyCode.L))
+            // {
+            //     dir += Vector2.right;
+            // }
 
             dir.Normalize();
 
@@ -68,16 +88,16 @@ namespace StackProto
             
             transform.position = dest;
 
-            if (Input.GetKeyDown(IsFirstPlayer ? KeyCode.LeftShift : KeyCode.Space))
-            {
-                isCatchupped = true;
-            }
-            if (Input.GetKeyUp(IsFirstPlayer ? KeyCode.LeftShift : KeyCode.Space))
-            {
-                isCatchupped = false;
-                CatchupRelease();
-            }
-            if (isCatchupped)
+            // if (Input.GetKeyDown(IsFirstPlayer ? KeyCode.LeftShift : KeyCode.Space))
+            // {
+            //     isCatchupped = true;
+            // }
+            // if (Input.GetKeyUp(IsFirstPlayer ? KeyCode.LeftShift : KeyCode.Space))
+            // {
+            //     isCatchupped = false;
+            //     CatchupRelease();
+            // }
+            if (inputSender.Catch.Value)
             {
                 CatchupStay();
             }
