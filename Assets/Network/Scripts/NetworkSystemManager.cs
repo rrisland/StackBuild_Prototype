@@ -17,6 +17,9 @@ namespace NetworkSystem
 
         public static async UniTask NetworkInitAsync()
         {
+            if (UnityServices.State != ServicesInitializationState.Uninitialized)
+                return;
+            
             //最初にUnityServicesを初期化する
             await UnityServices.InitializeAsync();
 

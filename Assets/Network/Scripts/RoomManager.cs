@@ -26,17 +26,26 @@ namespace NetworkSystem
         {
             if (LoadScene != null)
                 loadSceneName = LoadScene.name;
+            else
+                loadSceneName = "";
         }
 #endif
         [SerializeField] private string loadSceneName;
+        
+        [SerializeField] private bool ConnectToNetworkAtStart = false;
 
-        private void Start()
+        [SerializeField] private bool DrawGui = true;
+
+        private void Awake()
         {
-            NetworkSystemManager.NetworkInitAsync().Forget();
+            NetworkConnectionAtStartAsync(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
         private void OnGUI()
         {
+            if (!DrawGui)
+                return;
+            
             NetworkGUIWindow(0);
         }
 
@@ -54,7 +63,7 @@ namespace NetworkSystem
             label.fontSize = fontSize;
             
             GUILayout.BeginVertical(GUI.skin.window);
-
+            
             if (GUILayout.Button("CreateLobby", button))
             {
                 NetworkSystemManager.HostAsync(lobby, relay, lobbyOption, playerOption, this.GetCancellationTokenOnDestroy()).Forget();
@@ -109,6 +118,19 @@ namespace NetworkSystem
             }
             
             GUILayout.EndVertical();
+        }
+
+        private async UniTask NetworkConnectionAtStartAsync(CancellationToken token)
+        {
+            await NetworkSystemManager.NetworkInitAsync();
+            token.ThrowIfCancellationRequested();
+            
+            if (!ConnectToNetworkAtStart)
+                return;
+
+            await NetworkSystemManager.HostAsync(lobby, relay, lobbyOption, playerOption,
+                this.GetCancellationTokenOnDestroy());
+            token.ThrowIfCancellationRequested();
         }
     }
 

@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 
 namespace NetworkSystem
 {
-    public class OwnerAllocation : MonoBehaviour
+    public class OwnerAllocation : NetworkBehaviour
     {
         [SerializeField] private NetworkObject[] playerObjects = Array.Empty<NetworkObject>();
 
@@ -21,18 +21,23 @@ namespace NetworkSystem
 
         void ObjectOwnerAllocation()
         {
-            if (!NetworkManager.Singleton.IsServer)
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
                 return;
 
             var clients = NetworkManager.Singleton.ConnectedClients;
-            int i = 0;
+
+            int playerIndex = 0;
             foreach (var client in clients)
             {
-                if (i >= playerObjects.Length)
-                    break;
-
-                playerObjects[i].ChangeOwnership(client.Value.ClientId);
-                i++;
+                if(playerIndex > playerObjects.Length)
+                    continue;
+                
+                if (IsSpawned)
+                    playerObjects[playerIndex].ChangeOwnership(client.Value.ClientId);
+                else
+                    playerObjects[playerIndex].SpawnWithOwnership(client.Value.ClientId);
+                
+                playerIndex++;
             }
         }
     }

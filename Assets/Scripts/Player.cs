@@ -14,7 +14,7 @@ namespace StackProto
         [SerializeField] private InputSender inputSender;
         
         [SerializeField] private PlayerData data;
-        //[SerializeField] private bool IsFirstPlayer = true;
+        [SerializeField] private bool IsFirstPlayer = true;
         [SerializeField] private Cone cone = null;
 
         private Vector3 velocity = Vector3.zero;
@@ -22,9 +22,9 @@ namespace StackProto
 
         private void Start()
         {
-            if (!IsClient)
+            if (!IsOwner && !IsFirstPlayer)
                 return;
-            
+
             inputSender.Catch.Where(x => !x).Subscribe(x =>
             {
                 CatchupRelease();
@@ -33,9 +33,9 @@ namespace StackProto
 
         private void Update()
         {
-            if (!IsClient)
+            if (!IsOwner && !IsFirstPlayer)
                 return;
-            
+
             Vector2 dir = Vector2.zero;
 
             dir = inputSender.Move.Value;
@@ -65,6 +65,8 @@ namespace StackProto
             {
                 velocity = velocity.normalized * data.moveSpeed;
             }
+
+            
             
             
             var dest = transform.position + velocity;
