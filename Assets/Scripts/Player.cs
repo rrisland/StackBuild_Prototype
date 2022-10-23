@@ -33,7 +33,10 @@ namespace StackProto
 
         private void Update()
         {
-            if (!IsOwner && !IsFirstPlayer)
+            if (!IsOwner)
+                return;
+            
+            if (IsServer && NetworkManager.Singleton.ConnectedClients.Count == 1 && !IsFirstPlayer)
                 return;
 
             Vector2 dir = Vector2.zero;
