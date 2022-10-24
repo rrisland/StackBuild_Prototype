@@ -1,39 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
 using StackProto;
+using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 
 namespace StackProto
 {
-    public class MaterialSpawner : MonoBehaviour
+    public class MaterialSpawner : NetworkBehaviour
     {
         [SerializeField] private MaterialData materialData;
         [SerializeField] private MaterialSpawnerData spawnerData;
         [SerializeField] private List<CanonQueue> queues;
+        [SerializeField] private GameObject partsPrefub;
 
         private List<UnityEngine.Material> materials => materialData.materials;
         private List<UnityEngine.Mesh> meshes => materialData.meshes;
-    
-        void Start()
+
+        public override void OnNetworkSpawn()
         {
-            if (materialData is null || queues is null) return;
+            if (!IsServer || materialData is null || queues is null) 
+                return;
             
             StackProto.Material.Initialize(materialData);
             StartCoroutine(SpawnTimer());
         }
-    
+
         IEnumerator SpawnTimer()
         {
             while (true)
             {
-                int index = Random.Range(0, queues.Count);
-                
-                for (int i = 0; i < spawnerData.quantity; i++)
+                if(StackProto.Material.InstanceCounter <= 30)
                 {
-                    Spawn(out var obj);
-                    queues[index].Objects.Enqueue(obj);
+                    int index = Random.Range(0, queues.Count);
+
+                    for (int i = 0; i < spawnerData.quantity; i++)
+                    {
+                        Spawn(out var obj);
+                        queues[index].Objects.Enqueue(obj);
+                    }
                 }
                 
                 yield return new WaitForSeconds(spawnerData.duration);
@@ -42,13 +49,21 @@ namespace StackProto
 
         void Spawn(out GameObject obj)
         {
-            obj = new GameObject("Material");
-            obj.SetActive(false);
-            obj.transform.position = Vector3.down * 100;
-            obj.transform.SetParent(transform);
+            obj = Instantiate(partsPrefub);
+            //obj.SetActive(false);
+            obj.transform.position = new Vector3(0.0f, -100.0f, 0.0f);
 
-            Material material = obj.AddComponent<Material>();
-            material.SetData(Random.Range(0, materials.Count), Random.Range(0, meshes.Count));
+            var netobj = obj.GetComponent<NetworkObject>();
+            netobj.Spawn(true);
+            netobj.DontDestroyWithOwner = false;
+            
+            
+
+            var rb = obj.GetComponent<Rigidbody>();
+            rb.isKinematic = false;
+
+            //Material material = obj.GetComponent<Material>();
+            //material.SetData(Random.Range(0, materials.Count), Random.Range(0, meshes.Count));
         }
     }
 }

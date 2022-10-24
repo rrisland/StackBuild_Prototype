@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace StackProto
 {
-    public class Canon : MonoBehaviour
+    public class Canon : NetworkBehaviour
     {
         [SerializeField] private CanonData data;
         [SerializeField] private CanonQueue queue;
@@ -14,7 +15,8 @@ namespace StackProto
         
         public void Start()
         {
-            if (data is null) return;
+            if (!IsServer || data is null) 
+                return;
 
             StartCoroutine(ShootTimer());
         }

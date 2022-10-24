@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace StackProto
@@ -9,8 +10,8 @@ namespace StackProto
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(MeshCollider))]
-    [RequireComponent(typeof(Rigidbody))]
-    public class Material : MonoBehaviour
+    //[RequireComponent(typeof(Rigidbody))]
+    public class Material : NetworkBehaviour
     {
         private static MaterialData data;
         public static int InstanceCounter { get; private set; } = 0;
@@ -18,17 +19,22 @@ namespace StackProto
         public int MaterialIndex;
         public int MeshIndex;
 
-        public MeshFilter filter;
-        public MeshRenderer meshRenderer;
-        public MeshCollider meshCollider;
-        public Rigidbody rb;
+        private MeshFilter filter;
+        private MeshRenderer meshRenderer;
+        private MeshCollider meshCollider;
+        //private Rigidbody rb;
 
         private void Start()
         {
+            filter = GetComponent<MeshFilter>();
+            meshRenderer = GetComponent<MeshRenderer>();
+            meshCollider = GetComponent<MeshCollider>();
+            //rb = GetComponent<Rigidbody>();
+            
             InstanceCounter++;
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             InstanceCounter--;
         }
@@ -62,11 +68,11 @@ namespace StackProto
                 meshCollider.convex = true;
             }
 
-            if (TryGetComponent(out rb))
-            {
-                rb.interpolation = RigidbodyInterpolation.Interpolate;
-                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            }
+            // if (TryGetComponent(out rb))
+            // {
+            //     rb.interpolation = RigidbodyInterpolation.Interpolate;
+            //     rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            // }
         }
     }
 }
