@@ -22,7 +22,7 @@ namespace StackProto
                 materialCounter.Add(0);
             }
 
-            for (int i = (tmp ++ % 2) == 0 ? 80 : 30; i > 0; i--)
+            for (int i = (tmp ++ % 2) == 0 ? 180 : 30; i > 0; i--)
             {
                 buildingSpace.Build(buildingData.list[Random.Range(0, buildingData.list.Count)].afterMaterial);
             }

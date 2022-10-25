@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Building Data
   m_EditorClassIdentifier: 
   isFloorDown: 1
-  floorHeight: 1
+  floorHeight: 3
   floorHeightMax: 8
   floorTemplate: {fileID: 4004782733669816472, guid: b191f032f6c338149a7a827b8348c729,
     type: 3}

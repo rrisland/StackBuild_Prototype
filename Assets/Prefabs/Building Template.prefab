@@ -163,47 +163,47 @@ MonoBehaviour:
   - m_Vertices: 0b0000000e00000012000000
   m_SharedTextures: []
   m_Positions:
-  - {x: -6, y: -0.5, z: 6}
-  - {x: 6, y: -0.5, z: 6}
-  - {x: -6, y: 0.5, z: 6}
-  - {x: 6, y: 0.5, z: 6}
-  - {x: 6, y: -0.5, z: 6}
-  - {x: 6, y: -0.5, z: -6}
-  - {x: 6, y: 0.5, z: 6}
-  - {x: 6, y: 0.5, z: -6}
-  - {x: 6, y: -0.5, z: -6}
-  - {x: -6, y: -0.5, z: -6}
-  - {x: 6, y: 0.5, z: -6}
-  - {x: -6, y: 0.5, z: -6}
-  - {x: -6, y: -0.5, z: -6}
-  - {x: -6, y: -0.5, z: 6}
-  - {x: -6, y: 0.5, z: -6}
-  - {x: -6, y: 0.5, z: 6}
-  - {x: -6, y: 0.5, z: 6}
-  - {x: 6, y: 0.5, z: 6}
-  - {x: -6, y: 0.5, z: -6}
-  - {x: 6, y: 0.5, z: -6}
-  - {x: -6, y: -0.5, z: -6}
-  - {x: 6, y: -0.5, z: -6}
-  - {x: -6, y: -0.5, z: 6}
-  - {x: 6, y: -0.5, z: 6}
+  - {x: -6, y: -1.5, z: 6}
+  - {x: 6, y: -1.5, z: 6}
+  - {x: -6, y: 1.5, z: 6}
+  - {x: 6, y: 1.5, z: 6}
+  - {x: 6, y: -1.5, z: 6}
+  - {x: 6, y: -1.5, z: -6}
+  - {x: 6, y: 1.5, z: 6}
+  - {x: 6, y: 1.5, z: -6}
+  - {x: 6, y: -1.5, z: -6}
+  - {x: -6, y: -1.5, z: -6}
+  - {x: 6, y: 1.5, z: -6}
+  - {x: -6, y: 1.5, z: -6}
+  - {x: -6, y: -1.5, z: -6}
+  - {x: -6, y: -1.5, z: 6}
+  - {x: -6, y: 1.5, z: -6}
+  - {x: -6, y: 1.5, z: 6}
+  - {x: -6, y: 1.5, z: 6}
+  - {x: 6, y: 1.5, z: 6}
+  - {x: -6, y: 1.5, z: -6}
+  - {x: 6, y: 1.5, z: -6}
+  - {x: -6, y: -1.5, z: -6}
+  - {x: 6, y: -1.5, z: -6}
+  - {x: -6, y: -1.5, z: 6}
+  - {x: 6, y: -1.5, z: 6}
   m_Textures0:
-  - {x: 6, y: -0.5}
-  - {x: -6, y: -0.5}
-  - {x: 6, y: 0.5}
-  - {x: -6, y: 0.5}
-  - {x: 6, y: -0.5}
-  - {x: -6, y: -0.5}
-  - {x: 6, y: 0.5}
-  - {x: -6, y: 0.5}
-  - {x: 6, y: -0.5}
-  - {x: -6, y: -0.5}
-  - {x: 6, y: 0.5}
-  - {x: -6, y: 0.5}
-  - {x: 6, y: -0.5}
-  - {x: -6, y: -0.5}
-  - {x: 6, y: 0.5}
-  - {x: -6, y: 0.5}
+  - {x: 6, y: -1.5}
+  - {x: -6, y: -1.5}
+  - {x: 6, y: 1.5}
+  - {x: -6, y: 1.5}
+  - {x: 6, y: -1.5}
+  - {x: -6, y: -1.5}
+  - {x: 6, y: 1.5}
+  - {x: -6, y: 1.5}
+  - {x: 6, y: -1.5}
+  - {x: -6, y: -1.5}
+  - {x: 6, y: 1.5}
+  - {x: -6, y: 1.5}
+  - {x: 6, y: -1.5}
+  - {x: -6, y: -1.5}
+  - {x: 6, y: 1.5}
+  - {x: -6, y: 1.5}
   - {x: -6, y: 6}
   - {x: 6, y: 6}
   - {x: -6, y: -6}
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 871
+  m_VersionIndex: 879
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -267,14 +267,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Shape:
     rid: 5385101648540205067
-  m_Size: {x: 12, y: 1, z: 12}
+  m_Size: {x: 12, y: 3, z: 12}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_PivotLocation: 0
   m_PivotPosition: {x: 0, y: 0, z: 0}
-  m_UnmodifiedMeshVersion: 871
+  m_UnmodifiedMeshVersion: 879
   m_ShapeBox:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 6, y: 0.5, z: 6}
+    m_Extent: {x: 6, y: 1.5, z: 6}
   references:
     version: 2
     RefIds:
