@@ -23,7 +23,9 @@ namespace StackProto
         public void HoldServerRpc(bool isHold)
         {
             isCatchHold = isHold;
-            Debug.Log("通信受け取った " + gameObject.name);
+            
+            if(!isHold)
+                CatchupRelease();
         }
 
         private void Start()
@@ -36,13 +38,16 @@ namespace StackProto
             inputSender.Catch.Subscribe(x =>
             {
                 HoldServerRpc(x);
-                Debug.Log((x ? "ボタン押した" : "ボタン離した") + gameObject.name);
             }).AddTo(this);
         }
 
         private void Update()
         {
-            if(IsServer && isCatchHold)
+            if (!IsServer)
+                return;
+                
+            
+            if(isCatchHold)
                 CatchupStay();
         }
 

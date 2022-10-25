@@ -15,16 +15,16 @@ namespace StackProto
         private List<float> materialCounter = new List<float>();
 
         [ClientRpc]
-        private void StakingClientRPC()
+        private void StackingClientRPC(int materialIndex)
         {
+            if (IsServer)
+                return;
             
+            StackingOfParts(materialIndex);
         }
 
         private void Start()
         {
-            // if (!NetworkManager.Singleton.IsServer)
-            //     return;
-            
             for (int i = 0; i < materialData.materials.Count; i++)
             {
                 materialCounter.Add(0);
@@ -33,13 +33,16 @@ namespace StackProto
 
         private void OnTriggerEnter(Collider other)
         {
-            // if (!NetworkManager.Singleton.IsServer)
-            //     return;
+            if (!NetworkManager.Singleton.IsServer)
+                return;
             
             if (buildingData is null || materialData is null) return;
 
             if (other.gameObject.TryGetComponent(out StackProto.Material material))
+            {
                 StackingOfParts(material.MaterialIndex);
+                StackingClientRPC(material.MaterialIndex);
+            }
 
             Destroy(other.gameObject);
         }

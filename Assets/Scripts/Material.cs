@@ -30,7 +30,7 @@ namespace StackProto
             meshRenderer = GetComponent<MeshRenderer>();
             meshCollider = GetComponent<MeshCollider>();
             //rb = GetComponent<Rigidbody>();
-            
+
             InstanceCounter++;
         }
 
