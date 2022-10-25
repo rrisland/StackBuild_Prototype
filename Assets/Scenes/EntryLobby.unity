@@ -424,6 +424,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoomManager
       objectReference: {fileID: 0}
+    - target: {fileID: 7281664132443530306, guid: 40025d20904d01249868cf55bb4c50cb,
+        type: 3}
+      propertyPath: LoadScene
+      value: 
+      objectReference: {fileID: 102900000, guid: b34bd10ef0ef62f448cd34d4c154fec6,
+        type: 3}
+    - target: {fileID: 7281664132443530306, guid: 40025d20904d01249868cf55bb4c50cb,
+        type: 3}
+      propertyPath: loadSceneName
+      value: StackBuild
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 40025d20904d01249868cf55bb4c50cb, type: 3}

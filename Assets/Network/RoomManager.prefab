@@ -48,5 +48,7 @@ MonoBehaviour:
   relay: {fileID: 11400000, guid: c83824a8840dc0644a32557b15677068, type: 2}
   lobbyOption: {fileID: 11400000, guid: a91bbe458b1cd6044bf751446174749a, type: 2}
   playerOption: {fileID: 11400000, guid: 220aa3e31dcfee34995e8a73d545c95b, type: 2}
-  LoadScene: {fileID: 102900000, guid: b34bd10ef0ef62f448cd34d4c154fec6, type: 3}
-  loadSceneName: StackBuild
+  LoadScene: {fileID: 0}
+  loadSceneName: 
+  ConnectToNetworkAtStart: 0
+  DrawGui: 1
