@@ -13,11 +13,18 @@ namespace StackProto
 
         private List<float> materialCounter = new List<float>();
 
+        private static int tmp = 0;
+
         private void Start()
         {
             for (int i = 0; i < materialData.materials.Count; i++)
             {
                 materialCounter.Add(0);
+            }
+
+            for (int i = (tmp ++ % 2) == 0 ? 80 : 30; i > 0; i--)
+            {
+                buildingSpace.Build(buildingData.list[Random.Range(0, buildingData.list.Count)].afterMaterial);
             }
         }
 

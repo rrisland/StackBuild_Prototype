@@ -22,6 +22,8 @@ namespace StackProto
         private bool isStackAnimating = false;
         private readonly Queue<StackQueueEntry> stackQueue = new ();
 
+        public float Height => height;
+
         private void Start()
         {
             origin = transform.position;
