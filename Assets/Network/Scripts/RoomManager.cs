@@ -125,7 +125,7 @@ namespace NetworkSystem
             await NetworkSystemManager.NetworkInitAsync();
             token.ThrowIfCancellationRequested();
             
-            if (!ConnectToNetworkAtStart)
+            if (!ConnectToNetworkAtStart || NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsClient)
                 return;
 
             await NetworkSystemManager.HostAsync(lobby, relay, lobbyOption, playerOption,

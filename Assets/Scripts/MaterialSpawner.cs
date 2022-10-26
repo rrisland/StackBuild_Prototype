@@ -55,14 +55,11 @@ namespace StackProto
         void Spawn(out GameObject obj)
         {
             obj = Instantiate(partsPrefub);
-            obj.transform.position = new Vector3(0.0f, -100.0f, 0.0f);
+            obj.transform.position = new Vector3(0.0f, 10.0f, 0.0f);
 
             var netobj = obj.GetComponent<NetworkObject>();
             netobj.Spawn(true);
             netobj.DontDestroyWithOwner = false;
-            
-            var rb = obj.GetComponent<Rigidbody>();
-            rb.isKinematic = false;
 
             //Material material = obj.GetComponent<Material>();
             //material.SetData(Random.Range(0, materials.Count), Random.Range(0, meshes.Count));

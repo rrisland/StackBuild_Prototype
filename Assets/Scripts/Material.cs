@@ -7,10 +7,8 @@ namespace StackProto
     [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(MeshCollider))]
     //[RequireComponent(typeof(Rigidbody))]
-    public class Material : NetworkBehaviour
+    public class Material : MonoBehaviour
     {
-        [SerializeField] private PlayerManagement playerManagement;
-        
         private static MaterialData data;
         public static int InstanceCounter { get; private set; } = 0;
 
@@ -22,26 +20,6 @@ namespace StackProto
         private MeshCollider meshCollider;
         //private Rigidbody rb;
 
-        private NetworkObject networkObject;
-
-        [ServerRpc(RequireOwnership = false)]
-        void OwnerRequest(ulong clientId)
-        {
-            if (!IsServer)
-                return;
-            
-            networkObject.ChangeOwnership(clientId);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        void OwnerReturn()
-        {
-            if (!IsServer)
-                return;
-            
-            networkObject.RemoveOwnership();
-        }
-
         private void Start()
         {
             filter = GetComponent<MeshFilter>();
@@ -49,12 +27,10 @@ namespace StackProto
             meshCollider = GetComponent<MeshCollider>();
             //rb = GetComponent<Rigidbody>();
 
-            TryGetComponent(out networkObject);
-
             InstanceCounter++;
         }
 
-        public override void OnDestroy()
+        public void OnDestroy()
         {
             InstanceCounter--;
         }

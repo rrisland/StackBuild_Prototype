@@ -28,7 +28,16 @@ namespace StackProto
                 CatchupRelease();
         }
 
-        private void Start()
+        [ClientRpc]
+        public void HoldClientRpc(bool isHold)
+        {
+            isCatchHold = isHold;
+            
+            if(!isHold)
+                CatchupRelease();
+        }
+
+        public override void OnNetworkSpawn()
         {
             TryGetComponent(out player);
             
@@ -37,35 +46,35 @@ namespace StackProto
 
             inputSender.Catch.Subscribe(x =>
             {
-                HoldServerRpc(x);
+                CatchupRelease();
             }).AddTo(this);
         }
 
         private void Update()
         {
-            if (!IsServer)
+            if (!IsSpawned || !IsOwner)
                 return;
-                
             
-            if(isCatchHold)
+            if(inputSender.Catch.Value)
                 CatchupStay();
         }
 
         private void CatchupStay()
         {
+            
             foreach (var rb in cone.innerObjectsRb)
             {
-                rb.AddForce(player.velocity * data.moveSpeed, ForceMode.Acceleration);
+                rb.Value.AddForce(player.velocity * data.moveSpeed, ForceMode.Acceleration);
 
                 var center = cone.gameObject.transform.position;
-                var sub = center - rb.transform.position;
+                var sub = center - rb.Value.transform.position;
 
-                rb.AddForceAtPosition(sub * (data.catchupPower * Time.deltaTime), center, ForceMode.VelocityChange);
+                rb.Value.AddForceAtPosition(sub * (data.catchupPower * Time.deltaTime), center, ForceMode.VelocityChange);
 
                 var magnitude = sub.magnitude;
                 if (magnitude < data.catchupRange)
                 {
-                    rb.velocity = rb.velocity * (magnitude / data.catchupRange);
+                    rb.Value.velocity = rb.Value.velocity * (magnitude / data.catchupRange);
                 }
             }
         }
@@ -76,9 +85,9 @@ namespace StackProto
             {
                 var position = transform.position;
                 var dest = position + (Vector3.down * position.y);
-                var sub = dest - rb.transform.position;
+                var sub = dest - rb.Value.transform.position;
 
-                rb.AddForceAtPosition(sub * (data.releasePower * Time.deltaTime), dest, ForceMode.VelocityChange);
+                rb.Value.AddForceAtPosition(sub * (data.releasePower * Time.deltaTime), dest, ForceMode.VelocityChange);
             }
         }
     }

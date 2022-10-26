@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Scriptable Objects/PlayerManagement")]
 public class PlayerManagement : ScriptableObject
 {
     public const int MaxPlayer = 2;
-    public GameObject[] playerArray { get; private set; } = new GameObject[MaxPlayer];
+    public NetworkObject[] playerArray { get; private set; } = new NetworkObject[MaxPlayer];
     
-    public void SetPlayer(int playerIndex, GameObject playerObject)
+    public void SetPlayer(int playerIndex, NetworkObject playerObject)
     {
-        Debug.Assert(playerIndex < MaxPlayer);
         if (playerIndex >= MaxPlayer)
             return;
 

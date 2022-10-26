@@ -29,7 +29,7 @@ namespace StackProto
             TryGetComponent(out networkObject);
             
             //プレイヤーセットする
-            playerManagement.SetPlayer(IsFirstPlayer ? 0 : 1, gameObject);
+            playerManagement.SetPlayer(IsFirstPlayer ? 0 : 1, networkObject);
         }
 
         private void Update()
