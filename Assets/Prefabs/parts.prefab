@@ -114,6 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cff43ff28b9dbc8499c50cb8684d543f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerManagement: {fileID: 11400000, guid: f206c756eb4566e49bda314de1a526dd, type: 2}
   MaterialIndex: 0
   MeshIndex: 0
 --- !u!54 &440238028244621017

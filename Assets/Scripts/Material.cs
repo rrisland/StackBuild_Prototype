@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,6 +9,8 @@ namespace StackProto
     //[RequireComponent(typeof(Rigidbody))]
     public class Material : NetworkBehaviour
     {
+        [SerializeField] private PlayerManagement playerManagement;
+        
         private static MaterialData data;
         public static int InstanceCounter { get; private set; } = 0;
 
@@ -24,12 +22,34 @@ namespace StackProto
         private MeshCollider meshCollider;
         //private Rigidbody rb;
 
+        private NetworkObject networkObject;
+
+        [ServerRpc(RequireOwnership = false)]
+        void OwnerRequest(ulong clientId)
+        {
+            if (!IsServer)
+                return;
+            
+            networkObject.ChangeOwnership(clientId);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        void OwnerReturn()
+        {
+            if (!IsServer)
+                return;
+            
+            networkObject.RemoveOwnership();
+        }
+
         private void Start()
         {
             filter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
             meshCollider = GetComponent<MeshCollider>();
             //rb = GetComponent<Rigidbody>();
+
+            TryGetComponent(out networkObject);
 
             InstanceCounter++;
         }

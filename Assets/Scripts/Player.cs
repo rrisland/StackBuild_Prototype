@@ -16,6 +16,8 @@ namespace StackProto
         [SerializeField] private PlayerData data;
         [SerializeField] private bool IsFirstPlayer = true;
 
+        [SerializeField] private PlayerManagement playerManagement;
+
         private NetworkObject networkObject;
         
 
@@ -25,6 +27,9 @@ namespace StackProto
         private void Start()
         {
             TryGetComponent(out networkObject);
+            
+            //プレイヤーセットする
+            playerManagement.SetPlayer(IsFirstPlayer ? 0 : 1, gameObject);
         }
 
         private void Update()
