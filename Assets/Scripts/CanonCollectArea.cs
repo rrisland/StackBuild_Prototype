@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using StackProto;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace StackProto
@@ -11,7 +12,11 @@ namespace StackProto
     
         private void OnTriggerEnter(Collider other)
         {
-            if (queue is null) return;
+            if (queue is null) 
+                return;
+
+            if (other.TryGetComponent(out NetworkObject networkObject) && !networkObject.IsOwner)
+                return;
 
             if (other.TryGetComponent(out StackProto.Material material))
             {

@@ -7,42 +7,118 @@ using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
 
+
 public class ChangeOwnerParts : NetworkBehaviour
 {
     [SerializeField] private PlayerManagement playerManagement;
+    private NetworkVariable<Vector3> velocityNetwork = 
+        new NetworkVariable<Vector3>(writePerm: NetworkVariableWritePermission.Owner);
 
     private NetworkObject networkObject;
 
-    [ServerRpc(RequireOwnership = false)]
-    public void OwnerRequestServerRpc(ulong cloentId)
+    private Rigidbody rd;
+
+    private bool isSetVelocity = true;
+    private Vector3 networkVelocity = Vector3.zero;
+
+    [ServerRpc]
+    private void OwnerRequestServerRpc(ulong cloentId)
     {
         networkObject.ChangeOwnership(cloentId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void OwnerRemoveServerRpc()
+    //クライアントからVelocityを受け取る
+    [ServerRpc]
+    private void VelocityServerRpc(Vector3 velocity)
     {
-        networkObject.RemoveOwnership();
+        isSetVelocity = false;
+        networkVelocity = velocity;
+    }
+
+    private void Awake()
+    {
+        TryGetComponent(out networkObject);
+        TryGetComponent(out rd);
     }
 
 
     private void Start()
     {
-        TryGetComponent(out networkObject);
-
         CheckDistance(this.GetCancellationTokenOnDestroy()).Forget();
+        RigidbodySync(this.GetCancellationTokenOnDestroy()).Forget();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            velocityNetwork.Value = rd.velocity;
+        }
+        else
+        {
+            //クライアントがホストから受け取る場合
+            velocityNetwork.OnValueChanged += ChangeRigidbody;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (!IsServer)
+            velocityNetwork.OnValueChanged -= ChangeRigidbody;
+    }
+
+    //クライアントがホストから情報を受け取り
+    private void ChangeRigidbody(Vector3 previousvalue, Vector3 newvalue)
+    {
+        isSetVelocity = false;
+        networkVelocity = newvalue;
+    }
+
+    public override void OnGainedOwnership()
+    {
+        isSetVelocity = true;
+        rd.velocity = networkVelocity;
+    }
+
+    private async UniTask RigidbodySync(CancellationToken token)
+    {
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+
+            if (!IsOwner)
+            {
+                await UniTask.Yield(cancellationToken: token);
+                continue;
+            }
+
+            if(IsServer)
+            {
+                velocityNetwork.Value = rd.velocity;
+            }
+            else
+            {
+                VelocityServerRpc(rd.velocity);
+            }
+
+            await UniTask.DelayFrame(30, cancellationToken: token);
+        }
     }
 
     private async UniTask CheckDistance(CancellationToken token)
     {
         while (true)
         {
+            token.ThrowIfCancellationRequested();
+
             if (!IsOwner)
             {
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: token);
                 continue;
             }
             
+            await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: token);
+
             var p1 = Vector3.Distance(transform.position, playerManagement.playerArray[0].transform.position);
             var p2 = Vector3.Distance(transform.position, playerManagement.playerArray[1].transform.position);
 
@@ -52,14 +128,13 @@ public class ChangeOwnerParts : NetworkBehaviour
             //自分と変更先が一致している場合は何もしない
             if (playerManagement.playerArray[playerIndex].OwnerClientId == OwnerClientId)
             {
-                await UniTask.Yield();
+                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: token);
                 continue;
             }
-        
+
+            rd.velocity = Vector3.zero;
+            rd.angularVelocity = Vector3.zero;
             OwnerRequestServerRpc(playerManagement.playerArray[playerIndex].OwnerClientId);
-            
-            //交換した場合Dilayする
-            await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: token);
         }
     }
 }

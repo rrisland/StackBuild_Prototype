@@ -15,6 +15,8 @@ namespace StackProto
         [SerializeField] private Cone cone = null;
         [SerializeField] private PlayerData data;
 
+        [SerializeField] private bool IsFirstPlayer = false;
+
         private Player player;
 
         private bool isCatchHold = false;
@@ -43,6 +45,10 @@ namespace StackProto
             
             if (!IsOwner)
                 return;
+            
+            if (NetworkManager.Singleton.IsServer && 
+                NetworkManager.Singleton.ConnectedClients.Count == 1 && !IsFirstPlayer)
+                return;
 
             inputSender.Catch.Subscribe(x =>
             {
@@ -53,6 +59,10 @@ namespace StackProto
         private void Update()
         {
             if (!IsSpawned || !IsOwner)
+                return;
+            
+            if (NetworkManager.Singleton.IsServer && 
+                NetworkManager.Singleton.ConnectedClients.Count == 1 && !IsFirstPlayer)
                 return;
             
             if(inputSender.Catch.Value)
