@@ -30,6 +30,8 @@ namespace StackProto
             
             //プレイヤーセットする
             playerManagement.SetPlayer(IsFirstPlayer ? 0 : 1, networkObject);
+
+            
         }
 
         private void Update()
@@ -74,6 +76,36 @@ namespace StackProto
             }
             
             transform.position = dest;
+        }
+        
+        public void Vacuum(Rigidbody rb)
+        {
+            if (!inputSender.Catch.Value) return;
+		
+            // 引きよせる
+            rb.AddForce(velocity * data.moveSpeed, ForceMode.Acceleration);
+
+            var center = transform.position + Vector3.down * 7.5f;
+            var sub = center - rb.transform.position;
+
+            rb.AddForceAtPosition(sub * (data.catchupPower * Time.deltaTime), center, ForceMode.VelocityChange);
+
+            var magnitude = sub.magnitude;
+            if (magnitude < data.catchupRange)
+            {
+                rb.velocity = rb.velocity * (magnitude / data.catchupRange);
+            }
+            
+            Debug.Log("Vacuum: " + rb.transform.position);
+        }
+
+        public void VacuumRelease(Rigidbody rb)
+        {
+            var position = transform.position;
+            var dest = position + (Vector3.down * position.y);
+            var sub = dest - rb.transform.position;
+
+            rb.AddForceAtPosition(sub * (data.releasePower * Time.deltaTime), dest, ForceMode.VelocityChange);
         }
     }
 }

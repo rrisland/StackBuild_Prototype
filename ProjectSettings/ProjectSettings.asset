@@ -888,11 +888,11 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 1
-  cloudProjectId: e379c583-9947-46d1-909a-4d1940abeab4
+  cloudProjectId: bab3c695-2ed7-4350-ac28-656f58705e47
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: StackbuildTest1 (1)
-  organizationId: hakkii
+  projectName: StackbuildTest1
+  organizationId: rrisland
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 

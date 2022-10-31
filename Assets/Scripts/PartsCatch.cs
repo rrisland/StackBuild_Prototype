@@ -21,13 +21,16 @@ namespace StackProto
 
         private bool isCatchHold = false;
 
-        [ServerRpc]
+
+        [ServerRpc(RequireOwnership = false)]
         public void HoldServerRpc(bool isHold)
         {
             isCatchHold = isHold;
             
+            /*
             if(!isHold)
                 CatchupRelease();
+            */
         }
 
         [ClientRpc]
@@ -35,8 +38,10 @@ namespace StackProto
         {
             isCatchHold = isHold;
             
+            /*
             if(!isHold)
                 CatchupRelease();
+            */
         }
 
         public override void OnNetworkSpawn()
@@ -50,56 +55,62 @@ namespace StackProto
                 NetworkManager.Singleton.ConnectedClients.Count == 1 && !IsFirstPlayer)
                 return;
 
+            /*
             inputSender.Catch.Subscribe(x =>
             {
                 CatchupRelease();
             }).AddTo(this);
+            */
         }
 
-        private void Update()
+        private void OnTriggerStay(Collider other)
         {
+            /*
             if (!IsSpawned || !IsOwner)
                 return;
             
             if (NetworkManager.Singleton.IsServer && 
                 NetworkManager.Singleton.ConnectedClients.Count == 1 && !IsFirstPlayer)
                 return;
-            
-            if(inputSender.Catch.Value)
-                CatchupStay();
-        }
+            */
 
-        private void CatchupStay()
-        {
-            
-            foreach (var rb in cone.innerObjectsRb)
+            if (other.TryGetComponent(out NetworkObject obj))
             {
-                rb.Value.AddForce(player.velocity * data.moveSpeed, ForceMode.Acceleration);
-
-                var center = cone.gameObject.transform.position;
-                var sub = center - rb.Value.transform.position;
-
-                rb.Value.AddForceAtPosition(sub * (data.catchupPower * Time.deltaTime), center, ForceMode.VelocityChange);
-
-                var magnitude = sub.magnitude;
-                if (magnitude < data.catchupRange)
+                if (!obj.IsOwner) return;
+            }
+            
+            if (other.TryGetComponent(out Rigidbody rb))
+            {
+                if (inputSender.Catch.Value)
                 {
-                    rb.Value.velocity = rb.Value.velocity * (magnitude / data.catchupRange);
+                    //CatchupStay(rb);
                 }
             }
         }
 
-        private void CatchupRelease()
+        private void CatchupStay(Rigidbody rb)
         {
-            foreach (var rb in cone.innerObjectsRb)
-            {
-                var position = transform.position;
-                var dest = position + (Vector3.down * position.y);
-                var sub = dest - rb.Value.transform.position;
+            rb.AddForce(player.velocity * data.moveSpeed, ForceMode.Acceleration);
 
-                rb.Value.AddForceAtPosition(sub * (data.releasePower * Time.deltaTime), dest, ForceMode.VelocityChange);
+            var center = cone.transform.position;
+            var sub = center - rb.transform.position;
+
+            rb.AddForceAtPosition(sub * (data.catchupPower * Time.deltaTime), center, ForceMode.VelocityChange);
+
+            var magnitude = sub.magnitude;
+            if (magnitude < data.catchupRange)
+            {
+                rb.velocity = rb.velocity * (magnitude / data.catchupRange);
             }
         }
-    }
 
+        private void CatchupRelease(Rigidbody rb)
+        {
+            var position = transform.position;
+            var dest = position + (Vector3.down * position.y);
+            var sub = dest - rb.transform.position;
+
+            rb.AddForceAtPosition(sub * (data.releasePower * Time.deltaTime), dest, ForceMode.VelocityChange);
+        }
+    }
 }

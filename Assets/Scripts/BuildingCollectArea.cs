@@ -44,7 +44,14 @@ namespace StackProto
                 StackingClientRPC(material.MaterialIndex);
             }
 
-            Destroy(other.gameObject);
+            if (other.gameObject.TryGetComponent(out NetworkObject networkObject))
+            {
+                networkObject.Despawn();
+            }
+            else
+            {
+                Destroy(other.gameObject);
+            }
         }
 
         void StackingOfParts(int materialIndex)

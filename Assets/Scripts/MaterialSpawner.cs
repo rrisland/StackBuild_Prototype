@@ -55,7 +55,7 @@ namespace StackProto
         void Spawn(out GameObject obj)
         {
             obj = Instantiate(partsPrefub);
-            obj.transform.position = new Vector3(0.0f, 10.0f, 0.0f);
+            obj.transform.position = new Vector3(0.0f, -10.0f, 0.0f);
 
             var netobj = obj.GetComponent<NetworkObject>();
             netobj.Spawn(true);

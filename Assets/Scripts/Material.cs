@@ -18,14 +18,14 @@ namespace StackProto
         private MeshFilter filter;
         private MeshRenderer meshRenderer;
         private MeshCollider meshCollider;
-        //private Rigidbody rb;
+        private Rigidbody rb;
 
         private void Start()
         {
             filter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
             meshCollider = GetComponent<MeshCollider>();
-            //rb = GetComponent<Rigidbody>();
+            rb = GetComponent<Rigidbody>();
 
             InstanceCounter++;
         }
@@ -48,27 +48,42 @@ namespace StackProto
             MaterialIndex = materialIndex;
             MeshIndex = meshIndex;
 
-            if (TryGetComponent(out filter))
-            {
-                filter.sharedMesh = mesh;
-            }
+            filter.sharedMesh = mesh;
             
-            if (TryGetComponent(out meshRenderer))
-            {
-                meshRenderer.sharedMaterial = material;
-            }
+            meshRenderer.sharedMaterial = material;
 
-            if (TryGetComponent(out meshCollider))
-            {
-                meshCollider.sharedMesh = mesh;
-                meshCollider.convex = true;
-            }
+            meshCollider.sharedMesh = mesh;
+            meshCollider.convex = true;
 
             // if (TryGetComponent(out rb))
             // {
             //     rb.interpolation = RigidbodyInterpolation.Interpolate;
             //     rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             // }
+        }
+        
+        void OnTriggerStay(Collider other)
+        {
+            if (other.transform.parent is null) return;
+
+            var parent = other.transform.parent;
+
+            if (parent.TryGetComponent(out Player player))
+            {
+                player.Vacuum(rb);
+            }
+        }
+
+        void OnTriggerExit(Collider other)
+        {
+            if (other.transform.parent is null) return;
+            
+            var parent = other.transform.parent;
+
+            if (parent.TryGetComponent(out Player player))
+            {
+                player.VacuumRelease(rb);
+            }
         }
     }
 }

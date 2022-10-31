@@ -21,14 +21,14 @@ public class ChangeOwnerParts : NetworkBehaviour
     private bool isSetVelocity = true;
     private Vector3 networkVelocity = Vector3.zero;
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void OwnerRequestServerRpc(ulong cloentId)
     {
         networkObject.ChangeOwnership(cloentId);
     }
 
     //クライアントからVelocityを受け取る
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void VelocityServerRpc(Vector3 velocity)
     {
         isSetVelocity = false;
@@ -101,7 +101,7 @@ public class ChangeOwnerParts : NetworkBehaviour
                 VelocityServerRpc(rd.velocity);
             }
 
-            await UniTask.DelayFrame(30, cancellationToken: token);
+            await UniTask.DelayFrame(50, cancellationToken: token);
         }
     }
 
