@@ -11,6 +11,8 @@ using UnityEngine;
 public class ChangeOwnerParts : NetworkBehaviour
 {
     [SerializeField] private PlayerManagement playerManagement;
+    
+    private Vector3 beforeVelocity = Vector3.zero;
     private NetworkVariable<Vector3> velocityNetwork = 
         new NetworkVariable<Vector3>(writePerm: NetworkVariableWritePermission.Owner);
 
@@ -18,21 +20,10 @@ public class ChangeOwnerParts : NetworkBehaviour
 
     private Rigidbody rd;
 
-    private bool isSetVelocity = true;
-    private Vector3 networkVelocity = Vector3.zero;
-
     [ServerRpc]
     private void OwnerRequestServerRpc(ulong cloentId)
     {
         networkObject.ChangeOwnership(cloentId);
-    }
-
-    //クライアントからVelocityを受け取る
-    [ServerRpc]
-    private void VelocityServerRpc(Vector3 velocity)
-    {
-        isSetVelocity = false;
-        networkVelocity = velocity;
     }
 
     private void Awake()
@@ -50,34 +41,25 @@ public class ChangeOwnerParts : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
+        if (IsOwner)
         {
             velocityNetwork.Value = rd.velocity;
         }
-        else
-        {
-            //クライアントがホストから受け取る場合
-            velocityNetwork.OnValueChanged += ChangeRigidbody;
-        }
+        
+        velocityNetwork.OnValueChanged += ChangeRigidbodyVelocity;
     }
 
     public override void OnNetworkDespawn()
     {
-        if (!IsServer)
-            velocityNetwork.OnValueChanged -= ChangeRigidbody;
+        velocityNetwork.OnValueChanged -= ChangeRigidbodyVelocity;
     }
 
-    //クライアントがホストから情報を受け取り
-    private void ChangeRigidbody(Vector3 previousvalue, Vector3 newvalue)
+    private void ChangeRigidbodyVelocity(Vector3 previousvalue, Vector3 newvalue)
     {
-        isSetVelocity = false;
-        networkVelocity = newvalue;
-    }
-
-    public override void OnGainedOwnership()
-    {
-        isSetVelocity = true;
-        rd.velocity = networkVelocity;
+        if (IsOwner)
+            return;
+        
+        rd.velocity = newvalue;
     }
 
     private async UniTask RigidbodySync(CancellationToken token)
@@ -92,16 +74,9 @@ public class ChangeOwnerParts : NetworkBehaviour
                 continue;
             }
 
-            if(IsServer)
-            {
-                velocityNetwork.Value = rd.velocity;
-            }
-            else
-            {
-                VelocityServerRpc(rd.velocity);
-            }
+            velocityNetwork.Value = rd.velocity;
 
-            await UniTask.DelayFrame(30, cancellationToken: token);
+            await UniTask.DelayFrame(10, cancellationToken: token);
         }
     }
 
@@ -131,9 +106,8 @@ public class ChangeOwnerParts : NetworkBehaviour
                 await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: token);
                 continue;
             }
-
-            rd.velocity = Vector3.zero;
-            rd.angularVelocity = Vector3.zero;
+            
+            
             OwnerRequestServerRpc(playerManagement.playerArray[playerIndex].OwnerClientId);
         }
     }
