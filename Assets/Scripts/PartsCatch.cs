@@ -18,7 +18,7 @@ namespace StackProto
 
         [SerializeField] private Player player;
 
-        private bool isCatchHold = false;
+        //private bool isCatchHold = false;
 
         [ServerRpc]
         public void HoldServerRpc(bool isHold)

@@ -18,6 +18,8 @@ namespace StackProto
         [SerializeField] private MaterialSpawnerData spawnerData;
         [SerializeField] private List<CanonQueue> queues;
         [SerializeField] private GameObject partsPrefub;
+        
+        [SerializeField] private int MaxSpawn = 30;
 
         private List<UnityEngine.Material> materials => materialData.materials;
         private List<UnityEngine.Mesh> meshes => materialData.meshes;
@@ -37,7 +39,7 @@ namespace StackProto
         {
             while (true)
             {
-                if(StackProto.Material.InstanceCounter <= 30)
+                if(StackProto.Material.InstanceCounter <= MaxSpawn)
                 {
                     int index = Random.Range(0, queues.Count);
 
@@ -55,7 +57,7 @@ namespace StackProto
         void Spawn(out GameObject obj)
         {
             obj = Instantiate(partsPrefub);
-            obj.transform.position = new Vector3(0.0f, 10.0f, 0.0f);
+            obj.transform.position = new Vector3(0.0f, 100.0f, 0.0f);
 
             var netobj = obj.GetComponent<NetworkObject>();
             netobj.Spawn(true);

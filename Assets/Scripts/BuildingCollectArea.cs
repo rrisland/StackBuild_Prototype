@@ -17,9 +17,11 @@ namespace StackProto
         [ClientRpc]
         private void StackingClientRPC(int materialIndex)
         {
-            if (IsServer)
-                return;
-            
+            StakingNetwork(materialIndex);
+        }
+
+        private void StakingNetwork(int materialIndex)
+        {
             StackingOfParts(materialIndex);
         }
 
@@ -33,26 +35,26 @@ namespace StackProto
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!NetworkManager.Singleton.IsServer)
+            if (!IsServer)
                 return;
             
             if (buildingData is null || materialData is null) return;
 
             if (other.gameObject.TryGetComponent(out StackProto.Material material))
             {
-                StackingOfParts(material.MaterialIndex);
                 StackingClientRPC(material.MaterialIndex);
             }
 
-            Destroy(other.gameObject);
+            other.GetComponent<NetworkObject>().Despawn(false);
         }
 
         void StackingOfParts(int materialIndex)
         {
             materialCounter[materialIndex]++;
-
+            
             var list = buildingData.list.FindAll(
                 d => d.beforeMaterial.name.Equals(materialData.materials[materialIndex].name));
+            
 
             foreach (var data in list)
             {

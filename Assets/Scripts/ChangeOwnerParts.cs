@@ -11,10 +11,13 @@ using UnityEngine;
 public class ChangeOwnerParts : NetworkBehaviour
 {
     [SerializeField] private PlayerManagement playerManagement;
-    
-    private Vector3 beforeVelocity = Vector3.zero;
-    private NetworkVariable<Vector3> velocityNetwork = 
-        new NetworkVariable<Vector3>(writePerm: NetworkVariableWritePermission.Owner);
+
+    private NetworkVariable<float> velocityNetworkX =
+        new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<float> velocityNetworkY =
+        new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
+    private NetworkVariable<float> velocityNetworkZ =
+        new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
 
     private NetworkObject networkObject;
 
@@ -43,23 +46,44 @@ public class ChangeOwnerParts : NetworkBehaviour
     {
         if (IsOwner)
         {
-            velocityNetwork.Value = rd.velocity;
+            velocityNetworkX.Value = rd.velocity.x;
+            velocityNetworkY.Value = rd.velocity.y;
+            velocityNetworkZ.Value = rd.velocity.z;
         }
         
-        velocityNetwork.OnValueChanged += ChangeRigidbodyVelocity;
+        velocityNetworkX.OnValueChanged += ChangeVelocityX;
+        velocityNetworkY.OnValueChanged += ChangeVelocityY;
+        velocityNetworkZ.OnValueChanged += ChangeVelocityZ;
     }
 
     public override void OnNetworkDespawn()
     {
-        velocityNetwork.OnValueChanged -= ChangeRigidbodyVelocity;
+        velocityNetworkX.OnValueChanged -= ChangeVelocityX;
+        velocityNetworkY.OnValueChanged -= ChangeVelocityY;
+        velocityNetworkZ.OnValueChanged -= ChangeVelocityZ;
     }
 
-    private void ChangeRigidbodyVelocity(Vector3 previousvalue, Vector3 newvalue)
+    private void ChangeVelocityX(float previousvalue, float newvalue)
+    {
+        SetRigidbodyVelocity(new Vector3(newvalue, rd.velocity.y, rd.velocity.z));
+    }
+    
+    private void ChangeVelocityY(float previousvalue, float newvalue)
+    {
+        SetRigidbodyVelocity(new Vector3(rd.velocity.x, newvalue, rd.velocity.z));
+    }
+    
+    private void ChangeVelocityZ(float previousvalue, float newvalue)
+    {
+        SetRigidbodyVelocity(new Vector3(rd.velocity.x, rd.velocity.y, newvalue));
+    }
+
+    private void SetRigidbodyVelocity(Vector3 newVelocity)
     {
         if (IsOwner)
             return;
         
-        rd.velocity = newvalue;
+        rd.velocity = newVelocity;
     }
 
     private async UniTask RigidbodySync(CancellationToken token)
@@ -74,10 +98,21 @@ public class ChangeOwnerParts : NetworkBehaviour
                 continue;
             }
 
-            velocityNetwork.Value = rd.velocity;
+            VelocityComparison(rd.velocity.x, ref velocityNetworkX);
+            VelocityComparison(rd.velocity.y, ref velocityNetworkY);
+            VelocityComparison(rd.velocity.z, ref velocityNetworkZ);
 
-            await UniTask.DelayFrame(10, cancellationToken: token);
+            await UniTask.DelayFrame(20, cancellationToken: token);
         }
+    }
+    
+    private void VelocityComparison(float newVelocity, ref NetworkVariable<float> checkVelocity)
+    {
+        // if (!Mathf.Approximately(newVelocity, checkVelocity.Value))
+        //     checkVelocity.Value = newVelocity;
+        
+        //自分でチェックしなくても勝手にやってくれてた
+        checkVelocity.Value = newVelocity;
     }
 
     private async UniTask CheckDistance(CancellationToken token)
@@ -107,8 +142,10 @@ public class ChangeOwnerParts : NetworkBehaviour
                 continue;
             }
             
-            
-            OwnerRequestServerRpc(playerManagement.playerArray[playerIndex].OwnerClientId);
+            if(IsOwner)
+            {
+                OwnerRequestServerRpc(playerManagement.playerArray[playerIndex].OwnerClientId);
+            }
         }
     }
 }
