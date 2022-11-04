@@ -19,8 +19,8 @@ namespace NetworkSystem
             Join,
             Exit,
         }
-        public IObservable<SettingEvent> EndOfLobbySetting => endOfLobbySetting;
-        private Subject<SettingEvent> endOfLobbySetting = new Subject<SettingEvent>();
+        public IObservable<SettingEvent> OnRelaySetting => onRelaySetting;
+        private Subject<SettingEvent> onRelaySetting = new Subject<SettingEvent>();
 
         //ホストクライアント共通
         public string IPV4Address { get; private set; }
@@ -108,9 +108,11 @@ namespace NetworkSystem
                 //ネットワークマネージャーに入れる
                 Unity.Netcode.NetworkManager.Singleton.GetComponent<UnityTransport>().
                     SetHostRelayData(IPV4Address, port, allocationIdBytes, key, connectionData, true);
-                Unity.Netcode.NetworkManager.Singleton.StartHost();
                 
-                endOfLobbySetting.OnNext(SettingEvent.Create);
+                if(!Unity.Netcode.NetworkManager.Singleton.StartHost())
+                    throw new Exception("StartHost failed.");
+                
+                onRelaySetting.OnNext(SettingEvent.Create);
                 Debug.Log("Relayアロケーションを作成");
             }
             catch (Exception e)
@@ -144,9 +146,10 @@ namespace NetworkSystem
                 //ネットワークマネージャーに入れる
                 Unity.Netcode.NetworkManager.Singleton.GetComponent<UnityTransport>().
                     SetClientRelayData(IPV4Address, port, allocationIdBytes, key, connectionData, hostConnectionData, true);
-                Unity.Netcode.NetworkManager.Singleton.StartClient();
+                if (!Unity.Netcode.NetworkManager.Singleton.StartClient())
+                    throw new Exception("StartClient failed.");
                 
-                endOfLobbySetting.OnNext(SettingEvent.Join);
+                onRelaySetting.OnNext(SettingEvent.Join);
                 Debug.Log("Relayアロケーションに参加");
             }
             catch (Exception e)
@@ -162,7 +165,7 @@ namespace NetworkSystem
         public void RelayExit()
         {
             Unity.Netcode.NetworkManager.Singleton.Shutdown(true);
-            endOfLobbySetting.OnNext(SettingEvent.Exit);
+            onRelaySetting.OnNext(SettingEvent.Exit);
             Debug.Log("Relayアロケーションを退出しました");
         }
     }

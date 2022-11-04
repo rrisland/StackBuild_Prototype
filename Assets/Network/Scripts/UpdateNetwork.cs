@@ -14,14 +14,60 @@ namespace NetworkSystem
         public LobbyManager lobby;
         public RelayManager relay;
 
+        private CancellationTokenSource token = null;
+
         private void Start()
         {
             NetworkManager.Singleton.OnClientDisconnectCallback += x =>
             {
-                //ホストの場合ロビーを抜ける
-                if (x == 0)
+                //Relayから自分が落ちた場合ロビーからも抜ける
+                if(x == NetworkManager.Singleton.LocalClientId)
                     NetworkSystemManager.NetworkExit(lobby, relay).Forget();
             };
+
+            relay.OnRelaySetting.Where(x => x == RelayManager.SettingEvent.Join).Subscribe(_ =>
+            {
+                CancelToken();
+
+                token = new CancellationTokenSource();
+                CheckRelayConnectionStatus(token.Token).Forget();
+            }).AddTo(this);
+            
+            relay.OnRelaySetting.Where(x => x == RelayManager.SettingEvent.Exit).Subscribe(_ =>
+            {
+                CancelToken();
+            }).AddTo(this);
+        }
+
+        private void OnDestroy()
+        {
+            CancelToken();
+        }
+
+        private async UniTask CheckRelayConnectionStatus(CancellationToken token)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(5), cancellationToken: token);
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+                if (!NetworkManager.Singleton.IsConnectedClient)
+                {
+                    NetworkSystemManager.NetworkExit(lobby,relay).Forget();
+                    return;
+                }
+                
+                await UniTask.Yield(cancellationToken: token);
+            }
+        }
+
+        private void CancelToken()
+        {
+            if (token == null)
+                return;
+                
+            token.Cancel();
+            token.Dispose();
+            token = null;
         }
 
         private void OnApplicationQuit()
