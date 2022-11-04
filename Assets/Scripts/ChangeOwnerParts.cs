@@ -61,6 +61,8 @@ public class ChangeOwnerParts : NetworkBehaviour
         velocityNetworkX.OnValueChanged -= ChangeVelocityX;
         velocityNetworkY.OnValueChanged -= ChangeVelocityY;
         velocityNetworkZ.OnValueChanged -= ChangeVelocityZ;
+        
+        base.OnNetworkDespawn();
     }
 
     private void ChangeVelocityX(float previousvalue, float newvalue)

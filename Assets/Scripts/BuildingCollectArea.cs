@@ -35,6 +35,12 @@ namespace StackProto
 
         private void OnTriggerEnter(Collider other)
         {
+            if (!other.CompareTag("Parts"))
+                return;
+            
+            //触れたら動かないようにする
+            other.GetComponent<Rigidbody>().isKinematic = true;
+            
             if (!IsServer)
                 return;
             
@@ -45,7 +51,7 @@ namespace StackProto
                 StackingClientRPC(material.MaterialIndex);
             }
 
-            other.GetComponent<NetworkObject>().Despawn(false);
+            other.GetComponent<NetworkObject>().Despawn();
         }
 
         void StackingOfParts(int materialIndex)
