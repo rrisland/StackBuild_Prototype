@@ -29,7 +29,7 @@ namespace NetworkSystem
         public byte[] connectionData { get; private set; }
         public byte[] key { get; private set; }
         public string JoinCode { get; private set; }
-        public Region region { get; private set; }
+        public string region { get; private set; }
         
         
         //クライアント限定
@@ -38,7 +38,7 @@ namespace NetworkSystem
         //--------------------------------------------------------------------------------
 
         // 利用可能なすべてのリレーサーバーの地域をリストアップする
-        static async UniTask<List<Region>> ListupRegionsAsync()
+        public static async UniTask<List<Region>> ListupRegionsAsync()
         {
             try
             {
@@ -50,7 +50,7 @@ namespace NetworkSystem
             }
         }
 
-        static async UniTask<Allocation> CreateAllocationAsync(int maxConnections, string targetRegionId)
+        private static async UniTask<Allocation> CreateAllocationAsync(int maxConnections, string targetRegionId)
         {
             try
             {
@@ -61,8 +61,21 @@ namespace NetworkSystem
                 throw new Exception("Relay create allocation request failed " + e.Message);
             }
         }
+        
+        // 利用可能なリレーサーバーから最適なサーバーを自動的に選択する
+        private static async UniTask<Allocation> CreateAllocationAsyncQoS(int maxConnections)
+        {
+            try
+            {
+                return await RelayService.Instance.CreateAllocationAsync(maxConnections);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Relay create allocation request failed " + e.Message);
+            }
+        }
 
-        static async UniTask<string> GetJoinCodeAsync(Guid allocationId)
+        private static async UniTask<string> GetJoinCodeAsync(Guid allocationId)
         {
             try
             {
@@ -74,36 +87,35 @@ namespace NetworkSystem
             }
         }
 
+        private async UniTask SetupVariable(Allocation allocation)
+        {
+            JoinCode = await GetJoinCodeAsync(allocation.AllocationId);
+            
+            var dtlsEndpoint = allocation.ServerEndpoints.First(e => e.ConnectionType == "dtls");
+            IPV4Address = dtlsEndpoint.Host;
+            port = (ushort) dtlsEndpoint.Port;
+            allocationIdBytes = allocation.AllocationIdBytes;
+            connectionData = allocation.ConnectionData;
+            key = allocation.Key;
+            region = allocation.Region;
+        }
+
         //--------------------------------------------------------------------------------
         //Allocation生成
-        
+
         public async UniTask CreateAllocationAsync(int maxConnections)
         {
-#if UNITY_EDITOR
-            if (maxConnections > 6)
-            {
-                Debug.LogError("maxConnections > 6");
-                return;
-            }
-#endif
-            
             try
             {
-                var regions = await ListupRegionsAsync();
-                region = regions[0];
-                var allocation = await CreateAllocationAsync(maxConnections, region.Id);
-                JoinCode = await GetJoinCodeAsync(allocation.AllocationId);
-
-                var dtlsEndpoint = allocation.ServerEndpoints.First(e => e.ConnectionType == "dtls");
-                IPV4Address = dtlsEndpoint.Host;
-                port = (ushort) dtlsEndpoint.Port;
-                allocationIdBytes = allocation.AllocationIdBytes;
-                connectionData = allocation.ConnectionData;
-                key = allocation.Key;
+                CheckMaxConnections(maxConnections);
                 
+                var allocation = await CreateAllocationAsyncQoS(maxConnections);
+
+                await SetupVariable(allocation);
+
                 //ログ
-                Debug.Log($"server: {allocation.ConnectionData[0]} {allocation.ConnectionData[1]}");
-                Debug.Log($"server: {allocation.AllocationId}");
+                Debug.Log($"ConnectionData: {allocation.ConnectionData[0]} {allocation.ConnectionData[1]}" + 
+                          $"AllocationId {allocation.AllocationId}");
 
                 //ネットワークマネージャーに入れる
                 Unity.Netcode.NetworkManager.Singleton.GetComponent<UnityTransport>().
@@ -120,6 +132,50 @@ namespace NetworkSystem
                 Debug.LogException(e);
                 throw;
             }
+        }
+
+        public async UniTask CreateAllocationAsync(int maxConnections, Region targetRegion)
+        {
+            try
+            {
+                CheckMaxConnections(maxConnections);
+                
+                var allocation = await CreateAllocationAsync(maxConnections, targetRegion.Id);
+
+                await SetupVariable(allocation);
+
+                //ログ
+                Debug.Log($"ConnectionData: {allocation.ConnectionData[0]} {allocation.ConnectionData[1]}" + 
+                          $"AllocationId {allocation.AllocationId}");
+
+                //ネットワークマネージャーに入れる
+                Unity.Netcode.NetworkManager.Singleton.GetComponent<UnityTransport>().
+                    SetHostRelayData(IPV4Address, port, allocationIdBytes, key, connectionData, true);
+                
+                if(!Unity.Netcode.NetworkManager.Singleton.StartHost())
+                    throw new Exception("StartHost failed.");
+                
+                onRelaySetting.OnNext(SettingEvent.Create);
+                Debug.Log("Relayアロケーションを作成");
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                throw;
+            }
+        }
+
+        private static void CheckMaxConnections(int maxConnections)
+        {
+#if UNITY_EDITOR
+            switch (maxConnections)
+            {
+                case <= 0:
+                    throw new Exception("maxConnections <= 0");
+                case >= 10:
+                    throw new Exception("maxConnections >= 10");
+            }
+#endif
         }
 
         //--------------------------------------------------------------------------------
