@@ -18,30 +18,36 @@ namespace StackProto
 
         [SerializeField] private Player player;
 
-        //private bool isCatchHold = false;
+        private IDisposable disposable;
+        private NetworkVariable<bool> isCatchHold =
+            new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner);
 
-        [ServerRpc]
-        public void HoldServerRpc(bool isHold)
+        public override void OnGainedOwnership()
         {
-            
+            disposable = inputSender.Catch.Subscribe(x =>
+            {
+                if (!IsOwner)
+                    return;
+
+                isCatchHold.Value = x;
+            });
         }
 
-        [ClientRpc]
-        public void HoldClientRpc(bool isHold)
+        public override void OnLostOwnership()
         {
-            
+            disposable.Dispose();
         }
 
         private void OnTriggerStay(Collider other)
         {
-            if (!IsSpawned || !IsOwner)
+            if (!IsSpawned)
                 return;
             
             if (NetworkManager.Singleton.IsServer && 
                 NetworkManager.Singleton.ConnectedClients.Count == 1 && !IsFirstPlayer)
                 return;
-            
-            if(inputSender.Catch.Value && other.TryGetComponent(out Rigidbody rb))
+
+            if(isCatchHold.Value && other.TryGetComponent(out Rigidbody rb))
                 CatchupStay(rb);
         }
 
