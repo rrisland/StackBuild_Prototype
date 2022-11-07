@@ -127,19 +127,19 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _dist_string: 0.27
-    - _edge: 1.06
+    - _dist_string: 0.28
+    - _edge: 0.26
     - _edge_offset: 0.2
-    - _intensity: 0.32
+    - _intensity: 0.55
     - _maskdist_string: 0
     m_Colors:
     - Vector4_bd81b5234dc343fba9d86a7559aaa8bb: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0, g: 0.8754735, b: 1, a: 1}
+    - _Color: {r: 0, g: 1, b: 0.67108035, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _dist_tiling: {r: 1, g: 1, b: 0, a: 0}
-    - _edge_color: {r: 0, g: 5.620152, b: 89.45409, a: 0}
+    - _edge_color: {r: 0, g: 122.27367, b: 1023.9999, a: 0}
     - _mask_schroll: {r: 0, g: 0, b: 0, a: 0}
     - _mask_tiling: {r: 1, g: 1, b: 0, a: 0}
     - _maskdist_schroll: {r: 0, g: 0, b: 0, a: 0}
