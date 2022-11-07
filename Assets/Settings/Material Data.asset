@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Material Data
   m_EditorClassIdentifier: 
   materials:
-  - {fileID: 2100000, guid: b006fdd2d4ba11941962e7624d5af52f, type: 2}
-  - {fileID: 2100000, guid: 003c81c7dd1ff784aac4b99894208b27, type: 2}
+  - {fileID: -4973734387028869240, guid: 49a65fd58d71bc44e808e8d4b9363e23, type: 3}
+  - {fileID: -389402008792246631, guid: 49a65fd58d71bc44e808e8d4b9363e23, type: 3}
+  - {fileID: -1444460858095362738, guid: 49a65fd58d71bc44e808e8d4b9363e23, type: 3}
   meshes:
-  - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  - {fileID: -5495902117074765545, guid: 379b7c1e7e6b92e40bd7856e56678512, type: 3}

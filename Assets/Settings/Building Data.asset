@@ -18,9 +18,18 @@ MonoBehaviour:
   floorTemplate: {fileID: 4004782733669816472, guid: b191f032f6c338149a7a827b8348c729,
     type: 3}
   list:
-  - beforeMaterial: {fileID: 2100000, guid: b006fdd2d4ba11941962e7624d5af52f, type: 2}
+  - beforeMaterial: {fileID: -4973734387028869240, guid: 49a65fd58d71bc44e808e8d4b9363e23,
+      type: 3}
     requiredAmount: 1
-    afterMaterial: {fileID: 2100000, guid: b006fdd2d4ba11941962e7624d5af52f, type: 2}
-  - beforeMaterial: {fileID: 2100000, guid: 003c81c7dd1ff784aac4b99894208b27, type: 2}
+    afterMaterial: {fileID: -4973734387028869240, guid: 49a65fd58d71bc44e808e8d4b9363e23,
+      type: 3}
+  - beforeMaterial: {fileID: -389402008792246631, guid: 49a65fd58d71bc44e808e8d4b9363e23,
+      type: 3}
     requiredAmount: 1
-    afterMaterial: {fileID: 2100000, guid: 003c81c7dd1ff784aac4b99894208b27, type: 2}
+    afterMaterial: {fileID: -389402008792246631, guid: 49a65fd58d71bc44e808e8d4b9363e23,
+      type: 3}
+  - beforeMaterial: {fileID: -1444460858095362738, guid: 49a65fd58d71bc44e808e8d4b9363e23,
+      type: 3}
+    requiredAmount: 1
+    afterMaterial: {fileID: -1444460858095362738, guid: 49a65fd58d71bc44e808e8d4b9363e23,
+      type: 3}

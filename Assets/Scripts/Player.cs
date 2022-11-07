@@ -95,8 +95,6 @@ namespace StackProto
             {
                 rb.velocity = rb.velocity * (magnitude / data.catchupRange);
             }
-            
-            Debug.Log("Vacuum: " + rb.transform.position);
         }
 
         public void VacuumRelease(Rigidbody rb)

@@ -12,10 +12,18 @@ namespace StackProto
         [SerializeField] private CanonQueue queue;
         [SerializeField] private Transform shotPosition;
         [SerializeField] private Transform shotDirection;
-        
+
         public void Start()
         {
-            if (!IsServer || data is null) 
+            if (IsLocalPlayer)
+            {
+                StartCoroutine(ShootTimer());
+            }
+        }
+        
+        public override void OnNetworkSpawn()
+        {
+            if (!IsServer || data is null)
                 return;
 
             StartCoroutine(ShootTimer());
@@ -38,7 +46,7 @@ namespace StackProto
         {
             if (obj.TryGetComponent(out Rigidbody rb))
             {
-                obj.SetActive(true);
+                //obj.SetActive(true);
                 
                 rb.position = shotPosition.position;
                 rb.rotation = Quaternion.Euler(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360));

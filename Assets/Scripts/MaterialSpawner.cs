@@ -24,6 +24,15 @@ namespace StackProto
 
         private List<GameObject> partsList = new List<GameObject>();
 
+        private void OnStart()
+        {
+            if (IsLocalPlayer)
+            {
+                StackProto.Material.Initialize(materialData);
+                StartCoroutine(SpawnTimer());
+            }
+        }
+        
         public override void OnNetworkSpawn()
         {
             if (!IsServer || materialData is null || queues is null) 
@@ -61,8 +70,8 @@ namespace StackProto
             netobj.Spawn(true);
             netobj.DontDestroyWithOwner = false;
 
-            //Material material = obj.GetComponent<Material>();
-            //material.SetData(Random.Range(0, materials.Count), Random.Range(0, meshes.Count));
+            Material material = obj.GetComponent<Material>();
+            material.SetData(Random.Range(0, materials.Count), Random.Range(0, meshes.Count));
         }
     }
 }

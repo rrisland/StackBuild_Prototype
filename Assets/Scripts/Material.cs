@@ -48,12 +48,22 @@ namespace StackProto
             MaterialIndex = materialIndex;
             MeshIndex = meshIndex;
 
-            filter.sharedMesh = mesh;
-            
-            meshRenderer.sharedMaterial = material;
+            if (TryGetComponent(out MeshFilter filter))
+            {
+                filter.sharedMesh = mesh;
+            }
 
-            meshCollider.sharedMesh = mesh;
-            meshCollider.convex = true;
+            if (TryGetComponent(out MeshRenderer meshRenderer))
+            {
+                meshRenderer.sharedMaterial = material;
+            }
+
+            if (TryGetComponent(out MeshCollider meshCollider))
+            {
+                meshCollider.sharedMesh = mesh;
+                meshCollider.convex = true;
+            }
+            
 
             // if (TryGetComponent(out rb))
             // {

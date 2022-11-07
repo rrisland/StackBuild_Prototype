@@ -45,7 +45,7 @@ public class ChangeOwnerParts : NetworkBehaviour
     private void Start()
     {
         CheckDistance(this.GetCancellationTokenOnDestroy()).Forget();
-        RigidbodySync(this.GetCancellationTokenOnDestroy()).Forget();
+        //RigidbodySync(this.GetCancellationTokenOnDestroy()).Forget();
     }
 
     public override void OnNetworkSpawn()
