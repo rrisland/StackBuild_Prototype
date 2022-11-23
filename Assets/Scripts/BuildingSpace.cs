@@ -25,6 +25,7 @@ namespace StackProto
         private int buildingsInCurrentFloor;
         private bool isStackAnimating = false;
         private readonly Queue<StackQueueEntry> stackQueue = new ();
+        private Tween sinkTween = null;
 
         public float Height => height;
 
@@ -76,7 +77,8 @@ namespace StackProto
                 var baseY = entry.y - data.floorHeightMax;
                 if (data.isFloorDown && baseY - lastDownHeight > 0)
                 {
-                    transform.DOLocalMoveY(-baseY, 1.0f).SetEase(Ease.OutBack).SetDelay(0.8f);
+                    sinkTween?.Kill();
+                    sinkTween = transform.DOLocalMoveY(-baseY, 1.0f).SetEase(Ease.OutBack).SetDelay(2.3f);
                     lastDownHeight = baseY;
                 }
                 yield return new WaitForSeconds(0.05f);
