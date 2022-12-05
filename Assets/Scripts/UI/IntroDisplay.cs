@@ -8,6 +8,7 @@ public class IntroDisplay : MonoBehaviour
 {
 
     [SerializeField] private bool displayOnEnable;
+    [SerializeField] private CanvasGroup group;
     [SerializeField] private RectTransform titleLineTop;
     [SerializeField] private RectTransform titleLineBottom;
     [SerializeField] private RectTransform titleBackground;
@@ -20,6 +21,28 @@ public class IntroDisplay : MonoBehaviour
     [SerializeField] private RectTransform[] frameLines;
     [SerializeField] private RectTransform[] mapInfoRows;
 
+    private Sequence sequence;
+
+    private void Awake()
+    {
+        // Display()でSequence作ってSetActive(true)と一緒に呼ぶと600msくらいかかる あほか
+        // なので先に作って停止したSequenceを持っておく
+        // ついでにCanvas activeのままにできるようになった (active化でレイアウト走るのでその分の軽量化)
+        // 11msまで軽くなったのでもうこれでいいかな
+        sequence = DOTween.Sequence()
+                // ★タイミング調整はこちら★
+                .Insert(0,     ShowTitleLine(titleLineTop, true, 0.5f, Ease.OutQuart))
+                .Insert(0,     ShowTitleLine(titleLineBottom, false, 0.5f, Ease.OutQuart))
+                .Insert(0.38f, OpenTitleBackground(0.12f).Append(ShowTitleText()))
+                .Insert(0.25f, ShowAccentLine(accentLineTop, true, 0.65f, Ease.OutQuart))
+                .Insert(0.25f, ShowAccentLine(accentLineBottom, false, 0.65f, Ease.OutQuart))
+                .Insert(0,     ShowFrameLines(0.5f, Ease.OutQuart))
+                .Insert(0.75f, MoveFrames(20, 0.4f, Ease.OutQuart))
+                .Insert(0,     ShowMapInfo(300, 0.05f, 0.5f, Ease.OutQuart))
+            ;
+        sequence.Pause();
+    }
+
     private void OnEnable()
     {
         if (displayOnEnable)
@@ -30,22 +53,8 @@ public class IntroDisplay : MonoBehaviour
 
     public void Display()
     {
-        // 関数引数で長さとか諸々、一番後ろにSetDelayをつけてタイミングを調整できるよ
-        
-        ShowTitleLine(titleLineTop, true, 0.5f, Ease.OutQuart);
-        ShowTitleLine(titleLineBottom, false, 0.5f, Ease.OutQuart);
-
-        OpenTitleBackground(0.12f)
-            .Append(ShowTitleText())
-            .SetDelay(0.38f);
-
-        ShowAccentLine(accentLineTop, true, 0.65f, Ease.OutQuart).SetDelay(0.25f);
-        ShowAccentLine(accentLineBottom, false, 0.65f, Ease.OutQuart).SetDelay(0.25f);
-
-        ShowFrameLines(0.5f, Ease.OutQuart);
-        MoveFrames(20, 0.4f, Ease.OutQuart).SetDelay(0.75f);
-
-        ShowMapInfo(300, 0.05f, 0.5f, Ease.OutQuart);
+        group.alpha = 1;
+        sequence.Restart();
     }
 
     private Sequence ShowTitleLine(RectTransform line, bool fromRight, float duration, Ease ease)
