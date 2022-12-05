@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -10,9 +9,11 @@ public class HeightMeter : MonoBehaviour
     [SerializeField] private float value;
     [SerializeField] private float scale;
     [SerializeField] private float interval;
+    [SerializeField] private bool alignRight;
     [SerializeField] private RectTransform bar;
     [SerializeField] private Image imageLines;
     [SerializeField] private TextMeshProUGUI labelPrefab;
+    [SerializeField] private RectTransform labelContainer;
     private TextMeshProUGUI[] labels;
 
     private float tweenedValue;
@@ -29,7 +30,10 @@ public class HeightMeter : MonoBehaviour
         labels = new TextMeshProUGUI[Mathf.CeilToInt(height / scale / interval) + 1];
         for (int i = 0; i < labels.Length; i++)
         {
-            labels[i] = Instantiate(labelPrefab, transform);
+            labels[i] = Instantiate(labelPrefab, labelContainer != null ? labelContainer : transform);
+            labels[i].rectTransform.pivot     = new Vector2(alignRight ? 1 : 0, 0);
+            labels[i].rectTransform.anchorMin = new Vector2(alignRight ? 1 : 0, 0);
+            labels[i].rectTransform.anchorMax = new Vector2(alignRight ? 1 : 0, 0);
         }
 
         tweenedValue = value;
