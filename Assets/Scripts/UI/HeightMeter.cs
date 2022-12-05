@@ -8,7 +8,9 @@ public class HeightMeter : MonoBehaviour
 {
 
     [SerializeField] private float value;
+    [SerializeField] private float scale;
     [SerializeField] private float interval;
+    [SerializeField] private RectTransform bar;
     [SerializeField] private Image imageLines;
     [SerializeField] private TextMeshProUGUI labelPrefab;
     private TextMeshProUGUI[] labels;
@@ -24,12 +26,14 @@ public class HeightMeter : MonoBehaviour
         linesSize.y = linesTextureRepeat * linesTextureHeight;
         imageLines.rectTransform.sizeDelta = linesSize;
         
-        labels = new TextMeshProUGUI[Mathf.CeilToInt(height / interval) + 1];
+        labels = new TextMeshProUGUI[Mathf.CeilToInt(height / scale / interval) + 1];
         for (int i = 0; i < labels.Length; i++)
         {
             labels[i] = Instantiate(labelPrefab, transform);
         }
-        UpdateLabels();
+
+        tweenedValue = value;
+        Display(value);
     }
 
     public void Add(float amount)
@@ -40,29 +44,38 @@ public class HeightMeter : MonoBehaviour
     public void Set(float value)
     {
         this.value = value;
+        
         DOTween.To(() => tweenedValue, v =>
         {
             tweenedValue = v;
-            var pos = imageLines.rectTransform.localPosition;
-            pos.y = -(v % 50);
-            imageLines.rectTransform.localPosition = pos;
-            UpdateLabels();
+            Display(v);
         }, value, 0.5f).SetTarget(this).SetEase(Ease.OutCubic);
     }
 
-    private void UpdateLabels()
+    private void Display(float v)
     {
         float height = ((RectTransform)transform).rect.height;
-        // int s = Mathf.RoundToInt(tweenedValue / interval);
-        int startRow = Mathf.FloorToInt(tweenedValue / interval) - Mathf.FloorToInt(height / 2 / interval);
+        int middleRow = Mathf.FloorToInt(height / 2 / scale);
+        
+        // バー
+        var barSize = bar.sizeDelta;
+        barSize.y = Mathf.Max(2, Mathf.Min(middleRow, v) * scale);
+        bar.sizeDelta = barSize;
+            
+        // グリッド
+        float scroll = Mathf.Max(0, v - middleRow);
+        var gridPos = imageLines.rectTransform.anchoredPosition;
+        gridPos.y = -(scroll * scale % 50);
+        imageLines.rectTransform.anchoredPosition = gridPos;
+            
+        // ラベル
+        int startRow = Mathf.FloorToInt(scroll / interval) - Mathf.FloorToInt(height / 2 / scale / interval);
         for (int i = 0; i < labels.Length; i++)
         {
             labels[i].text = ((i + startRow) * interval).ToString();
-            var pos = labels[i].rectTransform.anchoredPosition;
-            pos.y = -tweenedValue + (i + startRow) * interval;
-            labels[i].rectTransform.anchoredPosition = pos;
-            // labels[i].text = ((s + i) * interval).ToString();
-            // labels[i].rectTransform.anchoredPosition = new Vector2(0, height - i * interval + tweenedValue % interval);
+            var labelPos = labels[i].rectTransform.anchoredPosition;
+            labelPos.y = (-scroll + (i + startRow) * interval) * scale;
+            labels[i].rectTransform.anchoredPosition = labelPos;
         }
     }
     
